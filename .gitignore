@@ -1,0 +1,25 @@
+Pistache/
+SQLiteCpp/
+builds/
+build/
+fonts/
+*/css/bootstrap.min.css
+*/css/bootstrap.min.css.map
+*/js/jquery.js
+*/js/axios.min.js
+*/js/bootstrap.min.js
+*/js/popper.min.js
+*/js/vue.min.js
+*/src/json.hpp
+*/test/catch.hpp
+*.sqlite
+*.kdev4
+*.log
+
+# Compiled Object files
+*.o
+
+# Compiled Dynamic libraries
+*.so
+
+
