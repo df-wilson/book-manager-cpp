@@ -33,6 +33,7 @@ TEST_CASE("Test BookController::getBooks.")
 TEST_CASE("Test BookController::getById.")
 {
    Logger::instance().log(Logger::LogLevel::INFO, "TEST 05_BookController", "Test getById - ENTER");
+   
    BookController bookController;
    JsonResponse jsonResponse = bookController.getById(token, BOOK_ID);
 
@@ -94,10 +95,31 @@ TEST_CASE("Test BookController::remove")
    JsonResponse jsonResponse = bookController.remove(token, NEW_BOOK_ID);
    REQUIRE(jsonResponse.code() == Pistache::Http::Code::Ok);
    
-      jsonResponse = bookController.getById(token, NEW_BOOK_ID);
+   jsonResponse = bookController.getById(token, NEW_BOOK_ID);
    REQUIRE(jsonResponse.code() == Pistache::Http::Code::Not_Found);
    REQUIRE(jsonResponse.message() == R"( {"message": "ERROR Book with that id doesn't exist", "book":{}"} )");
 
    Logger::instance().log(Logger::LogLevel::INFO, "TEST 05_BookController", "Test remove - LEAVE");
 }
 
+TEST_CASE("Test BookController::search")
+{
+   Logger::instance().log(Logger::LogLevel::INFO, "TEST 05_BookController", "Test search - ENTER");
+   
+   //std::string jsonRequest = R"({"search":""})";
+   BookController bookController;
+   JsonResponse jsonResponse = bookController.search(token, "author", "Jack");
+   
+   REQUIRE(jsonResponse.code() == Pistache::Http::Code::Ok);
+   REQUIRE(jsonResponse.message() == R"({"message":"OK", "books":[{"author":"Jack McDevitt","id":4,"rating":4,"read":false,"title":"Omega","userId":1,"year":"2005"},{"author":"Jack McDevitt","id":13,"rating":4,"read":true,"title":"Starhawk","userId":1,"year":"2015"}]})");
+   
+   jsonResponse = bookController.search(token, "title", "Jack");
+   REQUIRE(jsonResponse.code() == Pistache::Http::Code::Ok);
+   REQUIRE(jsonResponse.message() == R"({"message":"OK", "books":[]})");
+   
+   jsonResponse = bookController.search(token, "title", "Sword");
+   REQUIRE(jsonResponse.code() == Pistache::Http::Code::Ok);
+   REQUIRE(jsonResponse.message() == R"({"message":"OK", "books":[{"author":"Terry Brooks","id":5,"rating":4,"read":false,"title":"The Sword of Shannara","userId":1,"year":"1985"}]})");
+   
+   Logger::instance().log(Logger::LogLevel::INFO, "TEST 05_BookController", "Test search - LEAVE");
+}

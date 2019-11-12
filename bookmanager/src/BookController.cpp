@@ -137,6 +137,64 @@ JsonResponse BookController::remove(const std::string& token, int bookId)
 }
 
 /******************************************************************************
+ * Name: search
+ * Desc: Search for a book by author, title, or both.
+ ******************************************************************************
+ */   
+JsonResponse BookController::search(const std::string& token, const std::string& searchTypeIn, const std::string& searchTerm)
+{
+   Logger::instance().log(Logger::LogLevel::INFO, "BookController", "search: searchTerm &.", searchTerm);
+   
+   ostringstream json;
+   Pistache::Http::Code code = Pistache::Http::Code::Internal_Server_Error;
+   
+   int userId = userIdFromToken(token);
+   if(userId) {
+      try {
+         BookRepository::SEARCH_TYPE searchType;
+         if(searchTypeIn == "author") {
+            searchType = BookRepository::SEARCH_TYPE::AUTHOR;
+         } else if(searchTypeIn == "title") {
+            searchType = BookRepository::SEARCH_TYPE::TITLE;
+         } else {
+            searchType = BookRepository::SEARCH_TYPE::BOTH;
+         }
+         BookRepository repository;
+         vector<Book> books = repository.search(userId, searchType, searchTerm);
+      
+         json << "{\"message\":\"OK\", \"books\":[";
+      
+         int i = 0;
+         for(Book& book : books) {
+            if(i > 0) {
+               json << ",";
+            }
+            json << book.toJson();
+         
+            i++;
+         }
+         code = Pistache::Http::Code::Ok;
+      } catch(exception& e) {
+         Logger::instance().log(Logger::LogLevel::ERROR, "BookController", "search. ERROR: Saving book failed. &", e.what());
+         
+         code = Pistache::Http::Code::Internal_Server_Error;
+         
+         json.str("");
+         json.clear();
+         json << "{\"message\":\"ERROR: Cannot retrieve books\", \"books\":[";
+      }
+      json << "]}";
+   } else {
+      code = Pistache::Http::Code::Unauthorized;
+      json << "{\"message\":\"User not authorized\", \"books\":[]}";
+   }
+      
+   Logger::instance().log(Logger::LogLevel::DEBUG, "BookController", "LEAVE search. JSON is &.", json.str());
+      
+   return JsonResponse(json.str(), code);
+}
+
+/******************************************************************************
  * Name: store
  * Desc: Saves a new book in the data store.
  ******************************************************************************
@@ -253,6 +311,18 @@ int BookController::userIdFromToken(const std::string& token)
    }
    
    return userId;
+}
+
+std::string BookController::cleanInput(const std::string& input) const
+{
+   if(input.size() < 3) {
+      return input;
+   }
+   
+   size_t index = 0;
+   while((index = input.find("%20", index)) != std::string::npos) {
+      
+   }
 }
 
 } // End namespace dw

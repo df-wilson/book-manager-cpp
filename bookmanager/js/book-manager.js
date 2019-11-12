@@ -1,15 +1,28 @@
 const book_manager = {
    template: `
-   <div class="container" id="book-manager">
+   <div class="container">
       <div class="row">
          <div class="col-12">
-            <h1>{{title}}</h1>
+            <h1 class="center">{{title}}</h1>
+            <h3>Search</h3> 
+            <form v-on:submit.prevent="onSubmitSearch">
+               <div class="form-inline my-2 my-lg-0">
+               <input class="form-control mr-sm-2" type="search" v-model="searchTerm" placeholder="Search" aria-label="Search">
+               <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+               </div>
+               <div id="search-options">
+                  <input type="checkbox" id="searchTitle" value="Title" v-model="searchTitle">
+                  <label for="searchTitle">Title</label>
+                  <input type="checkbox" id="search-author" value="Author" v-model="searchAuthor">
+                  <label for="searchAuthor">Author</label><br>
+               </div>
+            </form>
          </div>
       </div>
 
-      <div class="row">
+      <div class="row" id="book-manager">
          <div class="col-12">
-            <h3>All Books</h3>
+            <h2 class="center">All Books</h2>
             <table class="table table-bordered">
                <tr class="table-success">
                   <th class="clickable" v-on:click.prevent="onSortTitle()">Title <span class="glyphicon glyphicon-triangle-bottom" aria-hidden="true"></span></th>
@@ -60,7 +73,12 @@ const book_manager = {
                misc: '',
                rating: ''
             },
-            selectedStars: 0
+            selectedStars: 0,
+            
+            searchTitle: true,
+            searchAuthor: true,
+            searchTerm: ""
+         
          }
       },
       
@@ -155,7 +173,7 @@ const book_manager = {
             });
          },
 
-         onEdit (index) 
+         onEdit(index) 
          {
             // Create a new copy of the book object data.
             Object.assign(this.book, this.books[index]);
@@ -171,7 +189,7 @@ const book_manager = {
                         }});
          },
 
-         onDelete (index) 
+         onDelete(index) 
          {
             let vm = this;
             var token = localStorage.getItem("token");
@@ -189,6 +207,39 @@ const book_manager = {
          onRatingSelected(rating) 
          {
             this.book.rating = rating;
+         },
+         
+         onSubmitSearch()
+         {
+            let vm = this;
+            var token = localStorage.getItem("token");
+            
+            var searchType = "both";
+            if(this.searchTitle && !this.searchAuthor) {
+               searchType = "title";
+            } else if (!this.searchTitle && this.searchAuthor) {
+               searchType = "author";
+            } else {
+               searchType = "both";
+            }
+            
+            axios.get('/api/v1/books/search/'+this.searchTerm+'?token='+token+'&searchType='+searchType)
+               .then(function(response) {
+                  vm.books = [];
+                  for(let i = 0; i < response.data.books.length; i++) {
+                     let book = [];
+                     book.id = response.data.books[i].id;
+                     book.title = response.data.books[i].title;
+                     book.author = response.data.books[i].author;
+                     book.year = response.data.books[i].year;
+                     book.read = response.data.books[i].read != 0;
+                     book.rating = response.data.books[i].rating;
+                     vm.books.push(book);
+                  }
+               
+            })
+            .catch(function(error) {
+         });
          }
       }
   }

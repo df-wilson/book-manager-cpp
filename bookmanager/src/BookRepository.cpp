@@ -142,9 +142,7 @@ bool BookRepository::remove(int userId, int todoId)
    // Create a new database connection when storing a new book. Connection will be closed
    // when db goes out-of-scope.
    //
-   SQLite::Database db(mDbPath, 
-                       SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
-   SQLite::Statement query(db, deleteQuery);
+   SQLite::Statement query((*mDb), deleteQuery);
    query.bind(1, todoId);
    query.bind(2, userId);
    int result = query.exec();
@@ -155,6 +153,65 @@ bool BookRepository::remove(int userId, int todoId)
    
    return isRemoved;
 }
+
+
+/******************************************************************************
+ * Name: search
+ * Description: Find the books with the given search term.
+ ******************************************************************************
+ */
+std::vector<Book> BookRepository::search(int user_id, SEARCH_TYPE searchType, std::string searchTerm)
+{
+   Logger::instance().log(Logger::LogLevel::DEBUG, "BookRepository", "search(). Search Term: &.", searchTerm);
+   
+   vector<Book> books;
+   
+   string searchQuery = "SELECT id, user_id, title, author, year, read, rating FROM books WHERE user_id = :user_id AND ";
+   switch(searchType)
+   {
+      case SEARCH_TYPE::AUTHOR:
+         searchQuery += "author LIKE :search";
+         break;
+         
+      case SEARCH_TYPE::TITLE:
+         searchQuery += "title LIKE :search";
+         break;
+         
+      case SEARCH_TYPE::BOTH:
+      default:
+         searchQuery += "(title LIKE :search OR author LIKE :search)";
+   }
+         
+   
+   try 
+   {
+      string searchString = "%" + searchTerm + "%";
+      
+      SQLite::Statement query(*(mDb), searchQuery);
+      query.bind(":user_id", user_id);
+      query.bind(":search", searchString);
+   
+      while (query.executeStep())
+      {
+         Book book(query.getColumn(0),
+                      query.getColumn(1), 
+                      query.getColumn(2), 
+                      query.getColumn(3), 
+                      query.getColumn(4), 
+                      (int)query.getColumn(5), 
+                      query.getColumn(6));
+         
+         books.push_back(book);
+      }
+   }
+   catch (exception& e)
+   {
+      Logger::instance().log(Logger::LogLevel::ERROR, "BookRepository", "search(). ERROR Exception: &.", e.what());
+      throw;
+   }
+   return books;
+}
+
 
 /******************************************************************************
  * Name: store
@@ -172,9 +229,7 @@ long BookRepository::store(const Book& book)
    // Create a new database connection when storing a new book. Connection will be closed
    // when db goes out-of-scope.
    //
-   SQLite::Database db(mDbPath, 
-                       SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
-   SQLite::Statement query(db, insertQuery);
+   SQLite::Statement query((*mDb), insertQuery);
    
    query.bind(1, book.userId());
    query.bind(2, book.title());
@@ -186,7 +241,7 @@ long BookRepository::store(const Book& book)
    int result = query.exec();
    
    if(result) {
-      newId = db.getLastInsertRowid();
+      newId = mDb->getLastInsertRowid();
       
       Logger::instance().log(Logger::LogLevel::DEBUG, "BookRepository", "store(). Book created. Id is: &.", to_string(newId));
    } else {
@@ -217,9 +272,7 @@ bool BookRepository::update(const Book& book) {
    // Create a new database connection when updating a book. Connection will be closed
    // when db goes out-of-scope.
    //
-   SQLite::Database db(mDbPath, 
-                       SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
-   SQLite::Statement query(db, updateQuery);
+   SQLite::Statement query((*mDb), updateQuery);
    
    query.bind(1, book.title());
    query.bind(2, book.author());

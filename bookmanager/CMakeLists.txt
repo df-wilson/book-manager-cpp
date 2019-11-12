@@ -4,7 +4,7 @@ project(bookmanager CXX)
 set (bookmanager_VERSION_MAJOR 1)
 set (bookmanager_VERSION_MINOR 0)
 set (CMAKE_CXX_STANDARD 14)
-set (CMAKE_CXX_FLAGS "-Wall -g")
+set (CMAKE_CXX_FLAGS "-Wall -Wextra -g")
 
 set (SOURCE_FILES 
    src/Book.cpp

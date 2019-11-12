@@ -125,6 +125,10 @@ void WebServer::setupRoutes()
                 "/api/v1/books", 
                 Pistache::Rest::Routes::bind(&WebServer::handleGetBooks, this));
     
+    Pistache::Rest::Routes::Get(router, 
+                "/api/v1/books/search/:searchTerm", 
+                Pistache::Rest::Routes::bind(&WebServer::handleGetSearchBooks, this));
+    
     Pistache::Rest::Routes::Post(router,
                  "/api/v1/books",
                  Pistache::Rest::Routes::bind(&WebServer::handlePostBooks, this));
@@ -265,7 +269,7 @@ void WebServer::serveJs(const Pistache::Rest::Request& request, Pistache::Http::
 void WebServer::handleDeleteBook(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response)
 {
    int id = request.param(":id").as<int>();
-   std::string token = getUrlToken(request);
+   std::string token = getUrlParam(request, "token");
       
    Logger::instance().log(Logger::LogLevel::INFO, "WebServer", "handleDeleteBook(). Serving &.", to_string(id));
    
@@ -289,7 +293,7 @@ void WebServer::handleGetBooks(const Pistache::Rest::Request& request, Pistache:
 {
    Logger::instance().log(Logger::LogLevel::INFO, "WebServer", "handleGetBooks().");
 
-   std::string token = getUrlToken(request);
+   std::string token = getUrlParam(request, "token");
    
    BookController controller;
    JsonResponse jsonResponse = controller.getBooks(token);
@@ -304,7 +308,7 @@ void WebServer::handleGetBooks(const Pistache::Rest::Request& request, Pistache:
  */  
 void WebServer::handleGetBookById(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response)
 {
-   std::string token = getUrlToken(request);
+   std::string token = getUrlParam(request, "token");
    int id = request.param(":id").as<int>();
    
    Logger::instance().log(Logger::LogLevel::INFO, "WebServer", "handleGetBookById(). Message: &.", to_string(id));
@@ -317,6 +321,40 @@ void WebServer::handleGetBookById(const Pistache::Rest::Request& request, Pistac
 }
 
 /******************************************************************************
+ * Name: handleGetSearchBooks
+ * Desc: Handles GET request for book search.
+ ******************************************************************************
+ */  
+void WebServer::handleGetSearchBooks(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response)
+{
+   std::string token = getUrlParam(request, "token");
+   std::string searchType = getUrlParam(request, "searchType");
+   std::string searchTerm = "";
+   
+   try {
+      searchTerm = request.param(":searchTerm").as<std::string>();
+   } catch (const std::exception& e) {
+      Logger::instance().log(Logger::LogLevel::INFO, "WebServer", "handleGetSearch(). No Search term: &.", e.what());
+      searchTerm = "";
+   }
+   Logger::instance().log(Logger::LogLevel::INFO, "WebServer", "handleGetSearch(). Message: &.", searchTerm);
+   
+   BookController controller;
+   
+   if(searchTerm == "") {
+      JsonResponse jsonResponse = controller.getBooks(token);
+      response.setMime(MIME(Application, Json));
+      response.send(jsonResponse.code(), jsonResponse.message());
+   } else {
+      JsonResponse jsonResponse = controller.search(token, searchType, searchTerm);
+      response.setMime(MIME(Application, Json));
+      response.send(jsonResponse.code(), jsonResponse.message());
+   }
+}
+
+
+
+/******************************************************************************
  * Name: handlePostBooks
  * Desc: Handles POST requests.
  ******************************************************************************
@@ -326,7 +364,7 @@ void WebServer::handlePostBooks(const Pistache::Rest::Request& request, Pistache
    std::string message = request.body();
    Logger::instance().log(Logger::LogLevel::INFO, "WebServer", "handlePostBooks(). Message: &.", message);
   
-   std::string token = getUrlToken(request);
+   std::string token = getUrlParam(request, "token");
    
    try {
       BookController controller;
@@ -351,7 +389,7 @@ void WebServer::handlePutBooks(const Pistache::Rest::Request& request, Pistache:
    std::string message = request.body();
    Logger::instance().log(Logger::LogLevel::INFO, "WebServer", "handlePutBooks(). Message: &.", message);
   
-   std::string token = getUrlToken(request);
+   std::string token = getUrlParam(request, "token");
       
    try {
       BookController controller;
@@ -369,8 +407,7 @@ void WebServer::handlePutBooks(const Pistache::Rest::Request& request, Pistache:
  * Desc: Handles the POST request /api/v1/login.
  ******************************************************************************
  */
-void 
-WebServer::handlePostLogin(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response)
+void WebServer::handlePostLogin(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response)
 {
    std::string message = request.body();
    Logger::instance().log(Logger::LogLevel::INFO, "WebServer", "handlePostLogin(). Message: &.", message);
@@ -391,8 +428,7 @@ WebServer::handlePostLogin(const Pistache::Rest::Request& request, Pistache::Htt
  * Desc: Handles the POST request /api/v1/register.
  ******************************************************************************
  */
-void 
-WebServer::handlePostRegister(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response)
+void WebServer::handlePostRegister(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response)
 {
    std::string message = request.body();
    Logger::instance().log(Logger::LogLevel::INFO, "WebServer", "handlePostRegister(). Message: &.", message);
@@ -413,8 +449,7 @@ WebServer::handlePostRegister(const Pistache::Rest::Request& request, Pistache::
  * Desc: Handles the POST request /api/v1/logout.
  ******************************************************************************
  */
-void 
-WebServer::handleLogout(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response)
+void WebServer::handleLogout(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response)
 {
    std::string message = request.body();
    Logger::instance().log(Logger::LogLevel::INFO, "WebServer", "handleLogout().Message: &.", message);
@@ -443,21 +478,21 @@ void WebServer::serveUnknown(const Pistache::Rest::Request& request, Pistache::H
 }
 
 /******************************************************************************
- * Name: getUrlToken
+ * Name: getUrlParam
  * Desc: Extract the token from the URL.
  ******************************************************************************
- */ 
-std::string 
-WebServer::getUrlToken(const Pistache::Rest::Request& request)
+ */  
+std::string WebServer::getUrlParam(const Pistache::Rest::Request& request, const std::string& param)
 {
-   std::string token("");
+   std::string value("");
       
-   if(request.query().has("token")) {
-   auto queryVal = request.query().get("token");
-   token = queryVal.getOrElse("");
+   if(request.query().has(param)) 
+   {
+      auto queryVal = request.query().get(param);
+      value = queryVal.getOrElse("");
    }
    
-   return token;
+   return value;
 }
 
 } // End namespace dw

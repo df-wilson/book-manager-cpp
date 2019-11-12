@@ -67,6 +67,7 @@ private:
     void handlePostBooks(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void handlePutBooks(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void handleGetBookById(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
+    void handleGetSearchBooks(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void handleDeleteBook(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void handlePostLogin(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void handlePostRegister(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
@@ -79,7 +80,7 @@ private:
     void serveJs(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     void serveUnknown(const Pistache::Rest::Request& request, Pistache::Http::ResponseWriter response);
     
-    std::string getUrlToken(const Pistache::Rest::Request& request);
+    std::string getUrlParam(const Pistache::Rest::Request& request, const std::string& param);
     
     
    /*----------------- Private Data  -----------------------*/

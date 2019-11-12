@@ -102,6 +102,24 @@ TEST_CASE( "Test BookRepository class. Create and get by ID." )
 
 }
 
+TEST_CASE("Test BookRepository class. Test search for book by author and title.")
+{
+   BookRepository repository;
+   
+   std::vector<Book> books = repository.search(BOOK_1_USER_ID, BookRepository::SEARCH_TYPE::AUTHOR, "Jack");
+   REQUIRE(books.size() == 2);
+   
+   std::vector<Book> books2 = repository.search(BOOK_1_USER_ID, BookRepository::SEARCH_TYPE::TITLE, "Jack");
+   REQUIRE(books2.size() == 0);
+   
+   std::vector<Book> books3 = repository.search(BOOK_1_USER_ID, BookRepository::SEARCH_TYPE::AUTHOR, "Sword");
+   REQUIRE(books3.size() == 0);
+   
+   std::vector<Book> books4 = repository.search(BOOK_1_USER_ID, BookRepository::SEARCH_TYPE::TITLE, "Sword");
+   REQUIRE(books4.size() == 1);
+   
+}
+
 
 TEST_CASE("Test BookRepository class. Test updating book information.")
 {

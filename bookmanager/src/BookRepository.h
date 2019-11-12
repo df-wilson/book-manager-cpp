@@ -30,6 +30,12 @@ class BookRepository
    
 public:
    
+   enum SEARCH_TYPE
+   {
+      AUTHOR,
+      BOTH,
+      TITLE
+   };
    /*-----------  Public Functions  ----------------*/
    
    /**
@@ -66,6 +72,18 @@ public:
     */
    bool remove(int userId, int TodoId);
   
+   
+   /**
+    * Search for books that contain the search term in either the author's name or book title. Only books
+    * that belong to the user are returned.
+    * 
+    * @param user_id the id of the user doing the search.
+    * @param searchTerm the string to search for.
+    * @param searchType the type of search to do
+    * @return std::vector< dw::Book > The list of books that match the search criteria.
+    */
+   std::vector<Book> search(int user_id, SEARCH_TYPE searchType, std::string searchTerm);
+   
    /**
     * Store a new todo object in the data store.
     * 

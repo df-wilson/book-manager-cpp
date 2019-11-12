@@ -3,6 +3,8 @@ SQLiteCpp/
 builds/
 build/
 fonts/
+translate/
+vendor/
 */css/bootstrap.min.css
 */css/bootstrap.min.css.map
 */js/jquery.js

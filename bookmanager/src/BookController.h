@@ -60,6 +60,15 @@ public:
     * @return the HTTP code and message to send to the client
     */
    JsonResponse remove(const std::string& token, int bookId);
+
+   /**
+    * Handle the GET request /api/v1/books/search
+    * 
+    * @param token the users authentication token
+    * @param searchTypeIn the type of search to perform: author, title, or both
+    * @return the HTTP code and message to send to the client
+    */
+   JsonResponse search(const std::string& token, const std::string& searchTypeIn, const std::string& searchTerm);
    
    /**
     * Handles the POST request. The book data is expected to be in JSON format in the form:
@@ -90,7 +99,21 @@ private:
    
    /*---------  Private Methods ------------------*/
    
+   
+   /**
+    * Find the user id from the web request security token.
+    * 
+    * @param token the security token
+    * @return int
+    */
    int userIdFromToken(const std::string& token);
+   
+   /**
+    * Replaces %20 with a space.
+    * 
+    * @param input the input parameter from an URL.
+    */
+   void cleanInput(std::string& input) const;
 };
 
 }
