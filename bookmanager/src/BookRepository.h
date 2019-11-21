@@ -1,7 +1,7 @@
 /**
  * @class BookRepository
  * 
- * Handles storing, updating and retrieving from the todo data store.
+ * Handles storing, updating and retrieving from the book data store.
  * One database connection is shared for all get requests. All database writes create
  * a new connection and close it when finished.
  * 
@@ -9,8 +9,8 @@
  * @version 1.1
  * @date    Feb 25, 2017
  */
-#ifndef TODOREPOSITORY_H
-#define TODOREPOSITORY_H
+#ifndef BOOKREPOSITORY_H
+#define BOOKREPOSITORY_H
 
 /*---------  Program Includes  ----------------*/
 #include "Book.h"
@@ -48,29 +48,29 @@ public:
     * Gets all stored books.
     * 
     * @param userId the user ID of the books to return
-    * @return std::vector<todo>
+    * @return std::vector<Book>
     */
    std::vector<Book> getAll(int userId);
    
    /**
-    * Get the stored todo object for the given id.
-    * @throws out_of_range exception if the todo cannot be retrieved.
+    * Get the stored book object for the given id.
+    * @throws out_of_range exception if the book cannot be retrieved.
     * 
-    * @param userId The id of the user requesting the todo 
-    * @param TodoId The id of the todo to retrieve.
-    * @return The todo data.
+    * @param userId The id of the user requesting the book 
+    * @param bookId The id of the book to retrieve.
+    * @return The book data.
     */
-    Book getById(int userId, int TodoId);
+    Book getById(int userId, int bookId);
    
    /**
-    * Delete the todo with the given id from the data store. Returns true if successful,
+    * Delete the book with the given id from the data store. Returns true if successful,
     * otherwise returns false.
     * 
     * @param userId the id of the user who is requesting the delete
-    * @param TodoId the id of the todo to delete
-    * @return true if the todo was removed, otherwise false.
+    * @param bookId the id of the book to delete
+    * @return true if the book was removed, otherwise false.
     */
-   bool remove(int userId, int TodoId);
+   bool remove(int userId, int bookId);
   
    
    /**
@@ -85,20 +85,20 @@ public:
    std::vector<Book> search(int user_id, SEARCH_TYPE searchType, std::string searchTerm);
    
    /**
-    * Store a new todo object in the data store.
+    * Store a new book object in the data store.
     * 
-    * @param todo The todo to store.
-    * @return true if the todo was stored, false otherwise.
+    * @param book The book to store.
+    * @return true if the book was stored, false otherwise.
     */
-   long store(const Book& todo);
+   long store(const Book& book);
    
    /**
-    * Update a todo object in the data store.
+    * Update a book object in the data store.
     * 
-    * @param todo the updated todo object.
-    * @return true if the todo was successfully updated, false otherwise.
+    * @param book the updated book object.
+    * @return true if the book was successfully updated, false otherwise.
     */
-   bool update(const Book& todo);
+   bool update(const Book& book);
   
 private:
    

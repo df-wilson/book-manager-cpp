@@ -23,7 +23,7 @@ BookRepository::BookRepository()
 {
    try {
       mDbPath = ConfigReader::getInstance().getConfig(ConfigReader::Config::DB_PATH); 
-      Logger::instance().log(Logger::LogLevel::INFO, "BookRepository", "Constructor. Database path is &.", mDbPath);
+      Logger::instance().log(Logger::LogLevel::DEBUG, "BookRepository", "Constructor. Database path is &.", mDbPath);
    }
    catch(out_of_range& e) {
       e.what();
@@ -43,7 +43,7 @@ BookRepository::BookRepository()
  */
 BookRepository::~BookRepository()
 {
-   Logger::instance().log(Logger::LogLevel::INFO, "BookRepository", "Desstructor.");
+   Logger::instance().log(Logger::LogLevel::DEBUG, "BookRepository", "Desstructor.");
    db_returnConnection(mDb);
 }
 
@@ -89,14 +89,14 @@ vector<Book> BookRepository::getAll(int userId)
  * Description: Return the stored book with the given id.
  ******************************************************************************
  */
-Book BookRepository::getById(int userId, int todoId)
+Book BookRepository::getById(int userId, int bookId)
 {
-   Logger::instance().log(Logger::LogLevel::DEBUG, "BookRepository", "getById(). User ID: & Book ID &.", to_string(userId), to_string(todoId));
+   Logger::instance().log(Logger::LogLevel::DEBUG, "BookRepository", "getById(). User ID: & Book ID &.", to_string(userId), to_string(bookId));
    
    bool hasResults = false;
    
    SQLite::Statement query(*(mDb), "SELECT id, user_id, title, author, year, read, rating FROM books WHERE id = :id AND user_id = :user_id");
-   query.bind(":id", todoId);
+   query.bind(":id", bookId);
    query.bind(":user_id", userId);
    
    try 
@@ -131,9 +131,9 @@ Book BookRepository::getById(int userId, int todoId)
  * Description: Remove a book from the data store.
  ******************************************************************************
  */
-bool BookRepository::remove(int userId, int todoId)
+bool BookRepository::remove(int userId, int bookId)
 {
-   Logger::instance().log(Logger::LogLevel::DEBUG, "BookRepository", "remove(). Book ID: & User ID &.", to_string(todoId), to_string(userId));
+   Logger::instance().log(Logger::LogLevel::DEBUG, "BookRepository", "remove(). Book ID: & User ID &.", to_string(bookId), to_string(userId));
    
    bool isRemoved = false;
    
@@ -143,7 +143,7 @@ bool BookRepository::remove(int userId, int todoId)
    // when db goes out-of-scope.
    //
    SQLite::Statement query((*mDb), deleteQuery);
-   query.bind(1, todoId);
+   query.bind(1, bookId);
    query.bind(2, userId);
    int result = query.exec();
    
