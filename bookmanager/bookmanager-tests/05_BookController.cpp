@@ -117,6 +117,10 @@ TEST_CASE("Test BookController::search")
    REQUIRE(jsonResponse.code() == Pistache::Http::Code::Ok);
    REQUIRE(jsonResponse.message() == R"({"message":"OK", "books":[]})");
    
+   jsonResponse = bookController.search(token, "title", "Terry%20Brooks");
+   REQUIRE(jsonResponse.code() == Pistache::Http::Code::Ok);
+   REQUIRE(jsonResponse.message() == R"({"message":"OK", "books":[{"author":"Terry Brooks","id":5,"rating":4,"read":false,"title":"The Sword of Shannara","userId":1,"year":"1985"}]})");
+   
    jsonResponse = bookController.search(token, "title", "Sword");
    REQUIRE(jsonResponse.code() == Pistache::Http::Code::Ok);
    REQUIRE(jsonResponse.message() == R"({"message":"OK", "books":[{"author":"Terry Brooks","id":5,"rating":4,"read":false,"title":"The Sword of Shannara","userId":1,"year":"1985"}]})");

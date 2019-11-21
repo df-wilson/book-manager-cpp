@@ -15,16 +15,24 @@ TEST_CASE("dbConnect - Test getting initial connection.")
    REQUIRE(db_numAvailableConnections() == 0);
    REQUIRE(connection->tableExists("books"));
    
-//   SQLite::Statement query(*connection, "SELECT * FROM books WHERE user_id = :userId");
-//   query.bind(":userId", 1);
+   SQLite::Statement* query = new SQLite::Statement(*connection, "SELECT * FROM books WHERE user_id = :userId");
+   query->bind(":userId", 1);
    
-//    while (query.executeStep())
-//    {
-//       std::cout << query.getColumn(1) << std::endl;
-//       std::cout << query.getColumn(2) << std::endl;
-//       std::cout << query.getColumn(3) << std::endl;
-//    }
+   //while (query->executeStep())
+   //{
+   //   std::cout << query->getColumn(1) << std::endl;
+   //   std::cout << query->getColumn(2) << std::endl;
+   //   std::cout << query->getColumn(3) << std::endl;
+   //}
 
+   query->executeStep();
+   REQUIRE(query->getColumn(0).getInt() == 1);
+   REQUIRE(query->getColumn(1).getInt() == 1);
+   REQUIRE(query->getColumn(2).getString() == "Sorcerer's Daughter");
+   REQUIRE(query->getColumn(3).getString() == "Terry Brooks");
+
+   delete query;
+   
    REQUIRE(db_numAvailableConnections() == 0);
    db_returnConnection(connection);
    REQUIRE(db_numAvailableConnections() == 1);

@@ -14,7 +14,7 @@ TEST_CASE("Test token functionality")
    TokenRepository tokenRepository;
    string token = tokenRepository.create(NEW_USER_ID);
    size_t length = token.length();
-   cout << "String length " << length << endl;
+   
    REQUIRE(length > 10);
    REQUIRE(length < 20);
    
