@@ -112,8 +112,9 @@ private:
     * Replaces %20 with a space.
     * 
     * @param input the input parameter from an URL.
+    * @return std::string
     */
-   void cleanInput(std::string& input) const;
+   std::string cleanInput(const std::string& input) const;
 };
 
 }

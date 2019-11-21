@@ -5,6 +5,7 @@
 #include "TokenRepository.h"
 
 /*---------  System Includes  -----------------*/
+#include <sstream>
 #include <string>
 
 using namespace std;
@@ -160,7 +161,9 @@ JsonResponse BookController::search(const std::string& token, const std::string&
             searchType = BookRepository::SEARCH_TYPE::BOTH;
          }
          BookRepository repository;
-         vector<Book> books = repository.search(userId, searchType, searchTerm);
+         std::string fixedSearchTerm = cleanInput(searchTerm);
+         std::cout << "SearchTerm is: <" << fixedSearchTerm << ">" << std::endl;
+         vector<Book> books = repository.search(userId, searchType, fixedSearchTerm);
       
          json << "{\"message\":\"OK\", \"books\":[";
       
@@ -313,16 +316,34 @@ int BookController::userIdFromToken(const std::string& token)
    return userId;
 }
 
+/******************************************************************************
+ * Name: cleanInput
+ * Desc: Replace %20 with a space. 
+ ******************************************************************************
+ */  
 std::string BookController::cleanInput(const std::string& input) const
 {
+   std::stringstream fixedString;
+   
    if(input.size() < 3) {
       return input;
    }
    
+   size_t prevIndex = 0;
    size_t index = 0;
-   while((index = input.find("%20", index)) != std::string::npos) {
+   while(index != std::string::npos) {
+      index = input.find("%20", index);
+      if(index >= std::string::npos) {
+         fixedString << input.substr(prevIndex);
+      } else {
+         fixedString << input.substr(prevIndex, index) << " ";
+         index += 3;
+      }
       
+      prevIndex = index;
    }
+   
+   return fixedString.str();
 }
 
 } // End namespace dw
