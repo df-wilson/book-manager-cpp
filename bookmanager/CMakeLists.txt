@@ -25,13 +25,6 @@ include_directories (../common)
 include_directories(vendor/include)
 link_directories(vendor/lib)
 
-#add_subdirectory (SQLiteCpp)
-#include_directories (SQLiteCpp/include)
-#add_subdirectory (Pistache)
-#include_directories (Pistache/include)
-#include_directories (src)
-
-#enable_testing()
 add_subdirectory(bookmanager-tests)
 
 add_executable(bookmanager ${SOURCE_FILES})
