@@ -62,9 +62,6 @@ void IndexPage::createPage()
                            <li class="nav-item">
                                  <span><router-link to="/book-manager" class="nav-link">Show All</router-link></span>
                            </li>
-                           <li class="nav-item">
-                                 <span><router-link to="/search" class="nav-link">Search</router-link></span>
-                           </li>
                          </ul>
                      </div>
                      <ul class="navbar-nav ml-auto">
