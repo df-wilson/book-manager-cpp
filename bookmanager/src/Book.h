@@ -71,7 +71,7 @@ public:
    std::string toString() const;
    
    /**
-    * Get the object data a string in JSON format.
+    * Get the book data as a string in JSON format.
     * 
     * @return the book data as a string in JSON format.
     */
