@@ -19,13 +19,6 @@ const home = {
    },
    mounted()
    {      
-      let logoutItem = document.getElementById("logout-menu");
-      logoutItem.style.display='none';
-      let loginItem = document.getElementById("login-menu");
-      loginItem.style.display='block';
-      let registerItem = document.getElementById("register-menu");
-      registerItem.style.display='block';
-      
       const token = localStorage.getItem("token");
       if(token) {
          router.push('book-manager');

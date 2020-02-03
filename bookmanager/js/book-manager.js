@@ -82,26 +82,31 @@ const book_manager = {
          }
       },
       
-      components: {
-         rate
-      },
+   components: {
+      rate
+   },
       
-      beforeMount() 
-      {
-         let logoutItem = document.getElementById("logout-menu");
-         logoutItem.style.display='block';
-         let loginItem = document.getElementById("login-menu");
-         loginItem.style.display='none';
-         let registerItem = document.getElementById("register-menu");
-         registerItem.style.display='none';
-      },
+   beforeMount() 
+   {
+      let logoutItem = document.getElementById("logout-menu");
+      logoutItem.style.display='block';
+      let addItem = document.getElementById("add-menu");
+      addItem.style.display='block';
+      let showItem = document.getElementById("show-menu");
+      showItem.style.display='block';
       
-      mounted() 
-      {
-         let vm = this;
-         var token = localStorage.getItem("token");
-         axios.get('/api/v1/books?token='+token)
-            .then(function(response) {
+      let loginItem = document.getElementById("login-menu");
+      loginItem.style.display='none';
+      let registerItem = document.getElementById("register-menu");
+      registerItem.style.display='none';
+   },
+      
+   mounted() 
+   {
+      let vm = this;
+      var token = localStorage.getItem("token");
+      axios.get('/api/v1/books?token='+token)
+           .then(function(response) {
                for(let i = 0; i < response.data.books.length; i++) {
                   let book = [];
                   book.id = response.data.books[i].id;
@@ -112,11 +117,10 @@ const book_manager = {
                   book.rating = response.data.books[i].rating;
                   vm.books.push(book);
                }
-               
             })
             .catch(function(error) {
          });
-      },
+   },
 
       methods: 
       {

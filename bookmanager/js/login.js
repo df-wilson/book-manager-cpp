@@ -42,6 +42,22 @@ const login_form = {
             password: ''
         }
     },
+    
+    mounted()
+    {
+      let logoutItem = document.getElementById("logout-menu");
+      logoutItem.style.display='none';
+      let addItem = document.getElementById("add-menu");
+      addItem.style.display='none';
+      let showItem = document.getElementById("show-menu");
+      showItem.style.display='none';
+      
+      let loginItem = document.getElementById("login-menu");
+      loginItem.style.display='block';
+      let registerItem = document.getElementById("register-menu");
+      registerItem.style.display='block';
+    },
+    
     methods: {
         login () {
             if (!this.validateForm()) {

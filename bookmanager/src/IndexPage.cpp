@@ -57,10 +57,10 @@ void IndexPage::createPage()
                      <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav">
                            <li class="nav-item">
-                                 <span><router-link to="/add" class="nav-link">Add</router-link></span>
+                                 <span><router-link to="/add" class="nav-link" id="add-menu">Add</router-link></span>
                            </li>
                            <li class="nav-item">
-                                 <span><router-link to="/book-manager" class="nav-link">Show All</router-link></span>
+                                 <span><router-link to="/book-manager" class="nav-link" id="show-menu">Show All</router-link></span>
                            </li>
                          </ul>
                      </div>
